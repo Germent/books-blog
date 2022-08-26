@@ -38,14 +38,22 @@ class BookController extends Controller
      */
     public function store(Request $request)
     {
+        \DB::beginTransaction();
+        try {
         $book = new Book();
         $book->title = $request->title;
         $book->author = $request->author;
         $book->publication = $request->publication;
         $book->year = $request->year;
         $book->save();
+        \DB::commit();
 
         return redirect('/books');
+        } catch (Exception $e){
+            \DB::rollback();
+            $message = $e->getMessage();
+            return reirect()->back->with('error', $message);
+        }
     }
 
     /**
